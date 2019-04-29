@@ -1,7 +1,13 @@
 package com.example.myapplication;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
+
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.graphics.Camera;
 import android.location.Location;
 import android.os.Build;
@@ -11,6 +17,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -53,6 +61,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+    }
+    public void onClick(View v) {
+        if (v.getId() == R.id.B_search) {
+            EditText tf_location = (EditText) findViewById(R.id.TF_location);
+            String location = tf_location.getText().toString();
+            List<Address> addressList = null;
+            MarkerOptions mo = new MarkerOptions();
+            if (!location.equals("")) {
+                Geocoder geocoder = new Geocoder(this);
+                try {
+                    addressList = geocoder.getFromLocationName(location, 5);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                for (int i = 0; i < addressList.size(); i++) {
+                    Address myAddress = addressList.get(i);
+                    LatLng latlng = new LatLng(myAddress.getLatitude(), myAddress.getLongitude());
+                    mo.position(latlng);
+                    mo.title("Your seatch result");
+                    mMap.addMarker(mo);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latlng));
+                }
+            }
+        }
     }
 
     @Override
